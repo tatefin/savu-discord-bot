@@ -12,8 +12,9 @@ Projektissa ei ole nimipäiviä listattuna, mutta tilalla on esimerkkitiedosto)
   - Pörssisähkön päivän hinnat (halvin, keskihinta, kallein)
 - Slash-komennot:
   - `/nimipäivät` – näyttää päivän nimipäivät ja liputuspäivän
-  - `/nimipäivähaku <nimi>` – etsii nimipäivän yhdelle nimelle
+  - `/nimihaku <nimi>` – etsii nimipäivän yhdelle nimelle
   - `/sahko [tunti]` – näyttää pörssisähkön hinnat, halutessa tunnin tarkkuudella
+  - `/liikenne` – näyttää liikennetilanteen (junat, tiet)
 
 ## Vaatimukset
 
