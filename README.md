@@ -1,6 +1,6 @@
 # 🤖 Savu — Discord-botti
 
-Suomalainen Discord-botti nimipäiville, pörssisähkölle, säätiedoille, liikenteelle, osakekursseille ja Trackmania-klubitilastoille. Lähettää automaattisen aamutervehdyksen joka päivä kello 6, graafilla varustettuna.
+Suomalainen Discord-botti nimipäiville, pörssisähkölle, säätiedoille, liikenteelle, osakekursseille, nimitilastoille ja Trackmania-klubitilastoille. Lähettää automaattisen aamutervehdyksen joka päivä kello 6, sähköhintojen graafilla varustettuna.
 
 ---
 
@@ -10,7 +10,9 @@ Suomalainen Discord-botti nimipäiville, pörssisähkölle, säätiedoille, liik
 | Komento | Kuvaus |
 |---|---|
 | `/nimipäivät` | Tämän päivän nimipäivät |
-| `/nimihaku [nimi]` | Milloin nimen nimipäivä on ja koska se tulee seuraavan kerran |
+| `/nimipaiva [nimi]` | Milloin nimen nimipäivä on ja koska se tulee seuraavan kerran |
+| `/nimihaku etu [nimi]` | Linkki DVV:n nimipalveluun — etunimen tilastot (lukumäärä, sukupuolijakauma, suosio vuosikymmenittäin) |
+| `/nimihaku suku [nimi]` | Linkki DVV:n nimipalveluun — sukunimen tilastot |
 
 ### ⚡ Sähkö
 | Komento | Kuvaus |
@@ -19,6 +21,8 @@ Suomalainen Discord-botti nimipäiville, pörssisähkölle, säätiedoille, liik
 | `/sahko matalin` | 5 halvinta tuntia |
 | `/sahko kallein` | 5 kalleinta tuntia |
 | `/sahko kaikki` | Koko päivän tuntilista + graafi |
+
+Graafissa: 🟩 vihreä = halvin tunti, 🔴 punainen = kallein, 🔵 sininen = tuleva tunti, ⬛ harmaa = mennyt tunti, 🟡 katkoviiva = nykyinen tunti.
 
 ### 🌤️ Sää
 | Komento | Kuvaus |
@@ -51,7 +55,7 @@ Suomalainen Discord-botti nimipäiville, pörssisähkölle, säätiedoille, liik
 |---|---|
 | `/help` | Näyttää kaikki komennot |
 
-> Kaikki komennot näkyvät vain komennon lähettäjälle (ephemeral-vastaus). Ainoa julkinen viesti kanavalla on päivittäinen aamutervehdys kello 6.
+> Kaikki komennot näkyvät vain komennon lähettäjälle (ephemeral). Ainoa julkinen viesti kanavalla on päivittäinen aamutervehdys kello 6.
 
 ---
 
@@ -61,8 +65,7 @@ Botti lähettää joka aamu määritettyyn kanavaan viestin joka sisältää:
 - Päivän nimipäivät
 - Mahdollinen liputuspäivä 🇫🇮
 - Syntymäpäivät (jos `syntymapaivat.json` on määritetty)
-- Pörssisähkön hinnat loppupäivälle
-- 📊 **Graafi koko päivän sähkönhinnoista** (palkkikuvaaja: vihreä = halvin tunti, punainen = kallein, keltainen viiva = nykyinen tunti)
+- Pörssisähkön hinnat loppupäivälle + graafi koko vuorokaudesta
 
 ---
 
@@ -102,7 +105,10 @@ Kaikki paketit eriteltynä:
 | `node-cron` | Ajastettu aamuviesti |
 | `canvas` | Sähkö- ja osakegraafit |
 
-> `canvas` vaatii käyttöjärjestelmäriippuvaisia kääntötyökaluja. Jos asennus epäonnistuu Linuxilla, asenna ensin: `sudo apt install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev`
+> `canvas` vaatii käyttöjärjestelmäriippuvaisia kääntötyökaluja. Jos asennus epäonnistuu Linuxilla, asenna ensin:
+> ```bash
+> sudo apt install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+> ```
 
 ### 3. Luo `.env`-tiedosto
 
@@ -129,14 +135,14 @@ TM_OAUTH_SECRET=oauth_sovelluksen_secret_tähän
 | Muuttuja | Mistä |
 |---|---|
 | `TOKEN`, `CLIENT_ID` | [Discord Developer Portal](https://discord.com/developers/applications) → oma sovellus → *Bot* / *General Information* |
-| `CHANNEL_ID` | Discordissa: oikealla hiirellä kanavan nimeä → *Kopioi kanavan tunnus* (kehittäjätila päälle asetuksista: *Asetukset → Lisäasetukset → Kehittäjätila*) |
+| `CHANNEL_ID` | Discordissa: oikealla hiirellä kanavan nimeä → *Kopioi kanavan tunnus* (kehittäjätila päälle: *Asetukset → Lisäasetukset → Kehittäjätila*) |
 | `WEATHER_API_KEY` | [weatherapi.com](https://www.weatherapi.com/) → rekisteröidy → *API key* |
-| `TM_LOGIN`, `TM_PASSWORD` | [trackmania.com/player/service-account](https://www.trackmania.com/player/service-account) → luo service account. **Tallenna salasana heti** — sitä ei voi hakea uudelleen jälkikäteen |
+| `TM_LOGIN`, `TM_PASSWORD` | [trackmania.com/player/service-account](https://www.trackmania.com/player/service-account) → luo service account. **Tallenna salasana heti** — sitä ei voi hakea uudelleen |
 | `TM_OAUTH_ID`, `TM_OAUTH_SECRET` | [api.trackmania.com](https://api.trackmania.com) → kirjaudu Ubisoft-tilillä → luo uusi sovellus (`Confidential = kyllä`, redirect URI esim. `http://localhost`) |
 
 ### 4. Lisää JSON-tiedostot
 
-Botti tarvitsee kaksi JSON-tiedostoa samaan kansioon kuin `bot_botti.js`:
+Botti tarvitsee kaksi JSON-tiedostoa samaan kansioon kuin `bot_tunkki.js`:
 
 **`nimipaivat.json`** — avain on `"KK-PP"`, arvo lista nimistä:
 ```json
@@ -160,7 +166,7 @@ Jos syntymäpäiviä ei halua käyttää, luo tyhjä tiedosto: `{}`
 ### 5. Käynnistä botti
 
 ```bash
-node bot_botti.js
+node bot_tunkki.js
 ```
 
 Konsoliin pitäisi ilmestyä:
@@ -177,7 +183,7 @@ Pitää botin pystyssä myös palvelimen uudelleenkäynnistyksen jälkeen.
 
 ```bash
 npm install -g pm2
-pm2 start bot_botti.js --name savu
+pm2 start bot_tunkki.js --name savu
 pm2 save
 pm2 startup
 ```
@@ -186,7 +192,7 @@ Hyödyllisiä pm2-komentoja:
 ```bash
 pm2 logs savu       # näytä lokit
 pm2 restart savu    # käynnistä uudelleen
-pm2 stop savu        # pysäytä
+pm2 stop savu       # pysäytä
 ```
 
 ---
@@ -199,8 +205,9 @@ pm2 stop savu        # pysäytä
 | [WeatherAPI](https://www.weatherapi.com/) | Säätiedot |
 | [Digitraffic / tie](https://www.digitraffic.fi/) | Tieliikenteen häiriötiedotteet |
 | [Digitraffic / rata](https://www.digitraffic.fi/) | Junien myöhästymiset |
-| [Yahoo Finance](https://finance.yahoo.com/) | Osakekurssit (huom: hinnat voivat olla viiveellä) |
+| [Yahoo Finance](https://finance.yahoo.com/) | Osakekurssit (hinnat voivat olla viiveellä) |
 | [Trackmania Nadeo API](https://webservices.openplanet.dev/) | Klubitiedot, rankings, Weekly Shorts |
+| [DVV Nimipalvelu](https://nimipalvelu.dvv.fi/) | Etu- ja sukunimitilastot |
 
 ---
 
@@ -208,7 +215,7 @@ pm2 stop savu        # pysäytä
 
 ```
 savu/
-├── bot_botti.js        # Pääohjelma
+├── bot_tunkki.js        # Pääohjelma
 ├── nimipaivat.json      # Nimipäiväkalenteri
 ├── syntymapaivat.json   # Syntymäpäivät (valinnainen)
 ├── .env                 # API-avaimet (EI Githubiin!)
@@ -222,16 +229,17 @@ savu/
 node_modules/
 ```
 
-> ⚠️ Älä koskaan lisää `.env`-tiedostoa Githubiin — se sisältää kaikki API-avaimesi ja Trackmania-tunnukset. Jos vahingossa committaat sen, vaihda välittömästi kaikki avaimet/salasanat.
+> ⚠️ Älä koskaan lisää `.env`-tiedostoa Githubiin — se sisältää kaikki API-avaimesi ja Trackmania-tunnukset. Jos vahingossa committaat sen, vaihda välittömästi kaikki avaimet ja salasanat.
 
 ---
 
 ## 🐛 Vianetsintä
 
-| Ongelma | Syy / ratkaisu |
+| Ongelma | Ratkaisu |
 |---|---|
-| `/sahko` ei vastaa, botti kaatuu | porssisahkoa.fi on muuttanut taulukkonsa rakennetta — tarkista scraper-logiikka |
-| `/tm` palauttaa pelkkiä ID:itä nimien sijaan | `TM_OAUTH_ID`/`TM_OAUTH_SECRET` puuttuu tai on väärin |
-| `/tm` sanoo "ei jäseniä" | Tarkista konsolista `haeKlubiJasenet`-loki — Nadeo-rajapinnan kentän nimi on saattanut muuttua |
-| `400 Bad Request` Digitraffic-kutsuissa | Tarkista että URL-rakenne vastaa nykyistä Digitraffic-dokumentaatiota (rajapinnat päivittyvät ajoittain) |
-| Botti ei rekisteröi komentoja | Tarkista että `CLIENT_ID` ja `TOKEN` vastaavat samaa Discord-sovellusta |
+| `/sahko` ei vastaa tai botti kaatuu | porssisahkoa.fi on saattanut muuttaa sivurakennettaan — tarkista scraper-logiikka |
+| `/tm` näyttää pelkkiä ID:itä nimien sijaan | `TM_OAUTH_ID` tai `TM_OAUTH_SECRET` puuttuu tai on väärin `.env`-tiedostossa |
+| `/tm` sanoo "ei jäseniä" | Tarkista konsolista `haeKlubiJasenet`-loki — Nadeon API-kentän nimi on saattanut muuttua |
+| `400 Bad Request` Digitraffic-kutsuissa | Tarkista että URL-rakenne vastaa nykyistä [Digitraffic-dokumentaatiota](https://www.digitraffic.fi/en/) |
+| Botti ei rekisteröi slash-komentoja | Tarkista että `CLIENT_ID` ja `TOKEN` kuuluvat samaan Discord-sovellukseen |
+| `canvas`-moduulin asennus epäonnistuu | Asenna järjestelmäriippuvuudet: `sudo apt install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev` |
