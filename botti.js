@@ -215,7 +215,7 @@ function piirraGraafi(prices) {
   const EPS = 0.001;
   prices.forEach((p, i) => {
     const x = PAD.left + i * xStep + 2;
-    const barH = ((p.price - minV) / range) * ch;
+    const barH = Math.max(4, ((p.price - minV) / range) * ch);
     const y = PAD.top + ch - barH;
     const isPast = parseInt(p.time) < now;
     ctx.fillStyle = Math.abs(p.price - minPrice) < EPS ? "#57f287"
