@@ -10,7 +10,7 @@ const { createCanvas } = require("canvas");
 
 const { TOKEN, CLIENT_ID, CHANNEL_ID, WEATHER_API_KEY, TM_LOGIN, TM_PASSWORD, TM_OAUTH_ID, TM_OAUTH_SECRET } = process.env;
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-const DT_HEADERS = { "Digitraffic-User": "discord-bot/tunkki" };
+const DT_HEADERS = { "Digitraffic-User": "discord-bot/savu" };
 
 /* --- APU --- */
 
@@ -263,7 +263,7 @@ async function haeSaa(kaupunki) {
 
 /* --- TRACKMANIA --- */
 
-const TM_UA = "discord-bot-tunkki / tunkki-bot / contact@example.com";
+const TM_UA = "discord-bot-savu / savu-bot / contact@example.com";
 let tmToken = null;
 let tmTokenExpiry = 0;
 let tmOAuthToken = null;
@@ -585,8 +585,13 @@ function piirraOsakeGraafi(pisteet, nimi, valuutta) {
 
 const commands = [
   new SlashCommandBuilder().setName("nimipäivät").setDescription("Näyttää nimipäivät"),
-  new SlashCommandBuilder().setName("nimihaku").setDescription("Hae nimipäivä")
+  new SlashCommandBuilder().setName("nimipaiva").setDescription("Hae milloin nimen nimipäivä on")
     .addStringOption(o => o.setName("nimi").setDescription("Nimi").setRequired(true)),
+  new SlashCommandBuilder().setName("nimihaku").setDescription("Hae nimitietoja DVV:n nimipalvelusta")
+    .addSubcommand(s => s.setName("etu").setDescription("Hae etunimiä DVV:n nimipalvelusta")
+      .addStringOption(o => o.setName("nimi").setDescription("Etunimi (esim. Matti, Kukka-Maaria)").setRequired(true)))
+    .addSubcommand(s => s.setName("suku").setDescription("Hae sukunimiä DVV:n nimipalvelusta")
+      .addStringOption(o => o.setName("nimi").setDescription("Sukunimi (esim. Virtanen, von Taffelsson)").setRequired(true))),
   new SlashCommandBuilder().setName("sahko").setDescription("Näyttää sähkön hinnan")
     .addStringOption(o => o.setName("näkymä").setDescription("Mitä näytetään").setRequired(false)
       .addChoices(
@@ -644,7 +649,9 @@ client.on("interactionCreate", async interaction => {
         .setTitle("📖 Komennot")
         .addFields(
           { name:"📅 /nimipäivät", value:"Näyttää tämän päivän nimipäivät." },
-          { name:"🔍 /nimihaku [nimi]", value:"Hakee milloin nimen nimipäivä on ja koska se tulee seuraavan kerran." },
+          { name:"🔍 /nimipaiva [nimi]", value:"Hakee milloin nimen nimipäivä on ja koska se tulee seuraavan kerran." },
+          { name:"👤 /nimihaku etu [nimi]", value:"Avaa DVV:n nimipalvelun etunimihaku suoraan linkkinä." },
+          { name:"👥 /nimihaku suku [nimi]", value:"Avaa DVV:n nimipalvelun sukunimihaku suoraan linkkinä." },
           { name:"⚡ /sahko [näkymä]", value:"Pörssisähkön hinnat + graafi.\n`yhteenveto` · `matalin` · `kallein` · `kaikki`" },
           { name:"🌤️ /saa [kaupunki]", value:"Näyttää kaupungin säätilan: lämpötila, tuuli, kosteus, pilvisyys ja näkyvyys." },
           { name:"🚦 /liikenne", value:"Tieliikenteen häiriötiedotteet ja myöhässä olevat kaukojunat." },
@@ -669,7 +676,7 @@ client.on("interactionCreate", async interaction => {
     });
   }
 
-  if (cmd === "nimihaku") {
+  if (cmd === "nimipaiva") {
     const nimi = interaction.options.getString("nimi").toLowerCase();
     const data = lueJSON("nimipaivat.json");
     const loydot = Object.entries(data)
@@ -701,6 +708,40 @@ client.on("interactionCreate", async interaction => {
         .setDescription(`**${nimi}**: ${formatted.map(f=>f.text).join(", ")}`)
         .addFields({ name:"⏭️ Seuraava", value:`${next.text} (${muotoilePaivaEro(next.diff)})` })]
     });
+  }
+
+  if (cmd === "nimihaku") {
+    const sub = interaction.options.getSubcommand();
+    const nimi = interaction.options.getString("nimi");
+    const nimiEnkoodattu = encodeURIComponent(nimi);
+
+    if (sub === "etu") {
+      const url = `https://nimipalvelu.dvv.fi/etunimihaku?nimi=${nimiEnkoodattu}`;
+      return interaction.reply({
+        flags: 64,
+        embeds: [new EmbedBuilder()
+          .setTitle(`👤 Etunimihaku: ${nimi}`)
+          .setURL(url)
+          .setDescription(`Katso **${nimi}**-etunimen tiedot DVV:n nimipalvelusta:\n🔗 ${url}`)
+          .addFields({ name:"📊 Tiedot sisältävät", value:"• Nimen haltijoiden lukumäärä\n• Sukupuolijakauma\n• Suosion kehitys vuosikymmenittäin" })
+          .setFooter({ text:"Lähde: Digi- ja väestötietovirasto (DVV)" })
+          .setColor(0x003580)]
+      });
+    }
+
+    if (sub === "suku") {
+      const url = `https://nimipalvelu.dvv.fi/sukunimihaku?nimi=${nimiEnkoodattu}`;
+      return interaction.reply({
+        flags: 64,
+        embeds: [new EmbedBuilder()
+          .setTitle(`👥 Sukunimihaku: ${nimi}`)
+          .setURL(url)
+          .setDescription(`Katso **${nimi}**-sukunimen tiedot DVV:n nimipalvelusta:\n🔗 ${url}`)
+          .addFields({ name:"📊 Tiedot sisältävät", value:"• Nimen haltijoiden lukumäärä\n• Suosion kehitys vuosikymmenittäin" })
+          .setFooter({ text:"Lähde: Digi- ja väestötietovirasto (DVV)" })
+          .setColor(0x003580)]
+      });
+    }
   }
 
   if (cmd === "sahko") {
