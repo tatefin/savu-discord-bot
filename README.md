@@ -82,10 +82,8 @@ Botti lähettää joka aamu määritettyyn kanavaan viestin joka sisältää:
 ## 📦 Asennus
 
 ### 1. Kloonaa repositorio
-
-```bash
-git clone https://github.com/oma-kayttaja/savu.git
-cd savu
+```
+git@github.com:tatefin/savu-discord-bot.git
 ```
 
 ### 2. Asenna riippuvuudet
@@ -142,7 +140,7 @@ TM_OAUTH_SECRET=oauth_sovelluksen_secret_tähän
 
 ### 4. Lisää JSON-tiedostot
 
-Botti tarvitsee kaksi JSON-tiedostoa samaan kansioon kuin `bot_tunkki.js`:
+Botti tarvitsee kaksi JSON-tiedostoa samaan kansioon kuin `bot_savu.js`:
 
 **`nimipaivat.json`** — avain on `"KK-PP"`, arvo lista nimistä:
 ```json
@@ -166,7 +164,7 @@ Jos syntymäpäiviä ei halua käyttää, luo tyhjä tiedosto: `{}`
 ### 5. Käynnistä botti
 
 ```bash
-node bot_tunkki.js
+node bot_savu.js
 ```
 
 Konsoliin pitäisi ilmestyä:
@@ -183,7 +181,7 @@ Pitää botin pystyssä myös palvelimen uudelleenkäynnistyksen jälkeen.
 
 ```bash
 npm install -g pm2
-pm2 start bot_tunkki.js --name savu
+pm2 start bot_savu.js --name savu
 pm2 save
 pm2 startup
 ```
@@ -215,7 +213,7 @@ pm2 stop savu       # pysäytä
 
 ```
 savu/
-├── bot_tunkki.js        # Pääohjelma
+├── bot_savu.js        # Pääohjelma
 ├── nimipaivat.json      # Nimipäiväkalenteri
 ├── syntymapaivat.json   # Syntymäpäivät (valinnainen)
 ├── .env                 # API-avaimet (EI Githubiin!)
