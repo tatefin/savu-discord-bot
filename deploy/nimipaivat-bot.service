@@ -1,0 +1,15 @@
+[Unit]
+Description=Nimipäivät sähkönhinta bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tate
+WorkingDirectory=/home/tate/nimipaivat-sahkonhinta
+ExecStart=/usr/bin/node bot_290626.js
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
